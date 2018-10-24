@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php include "header.html"; ?>
-<?php include "navbar.html"; ?>
 <body>
-
+<?php include "navbar.html"; ?>
 <div class="container">
   <h1>Tram</h1>
   <?php
