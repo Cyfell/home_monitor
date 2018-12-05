@@ -7,6 +7,12 @@
   <h1>Tram</h1>
   <div class="row">
       <?php
+      $dbname='base';
+      $mytable ="tablename";
+
+      if(!class_exists('SQLite3'))
+        die("SQLite 3 NOT supported.");
+        
       define("NB_TRAMS_MAX", 2);
       define('ARRETS', array(
           'JAME',
@@ -40,7 +46,7 @@
             echo "A destination de ";
             echo $obj['terminus'];
             echo '</br>';
-            echo "prochain départ : ";
+            echo "Prochain départ : ";
             echo  $obj['temps'];
             echo '</br>';
             echo '</br>';
