@@ -7,17 +7,9 @@
   <h1>Tram</h1>
   <div class="row">
       <?php
-      $dbname='base';
-      $mytable ="tablename";
 
-      if(!class_exists('SQLite3'))
-        die("SQLite 3 NOT supported.");
-        
+
       define("NB_TRAMS_MAX", 2);
-      define('ARRETS', array(
-          'JAME',
-          'XBON',
-      ));
 
       function get_info_arret($code_arret){
         $url = "http://open.tan.fr/ewp/tempsattente.json/$code_arret";
@@ -32,31 +24,42 @@
         return json_decode($data, true);
       }
 
-      foreach ( ARRETS as $arret_name) {
-        ?>
-        <div class="col-sm-3" style="border-style: solid; border-radius: 10px; background: #E0E0E0">
-        <?php
-        $arret = get_info_arret($arret_name);
-        echo "<h2>";
-        echo $arret[0]['arret']['codeArret'];
-        echo "</h2>";
-        $nb_trams = 0;
-        foreach ($arret as $obj) {
-          if ($obj['sens'] == 2){
-            echo "A destination de ";
-            echo $obj['terminus'];
-            echo '</br>';
-            echo "Prochain départ : ";
-            echo  $obj['temps'];
-            echo '</br>';
-            echo '</br>';
-            $nb_trams++;
-            if ($nb_trams >= NB_TRAMS_MAX){
-              break;
+      $dbname='home_monitor';
+      $mytable ="Tan";
+
+      $dir = 'sqlite:home_monitor.sqlite';
+
+      $dbh = new PDO($dir) or die("cannot open the database");
+      $query = "SELECT * FROM Tan";
+
+      foreach ($dbh->query($query) as $db_result)
+      {
+          ?>
+          <div class="col-sm-3" style="border-style: solid; border-radius: 10px; background: #E0E0E0; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+          <?php
+          $arret = get_info_arret($db_result['stop_code_name']);
+          echo "<h2>";
+          echo $db_result['stop_name'];
+          echo "</h2>";
+          $nb_trams = 0;
+          foreach ($arret as $obj) {
+            if ($obj['sens'] == $db_result['direction'] && $obj['ligne']['numLigne'] == $db_result['line_num'] && $obj['ligne']['typeLigne'] == $db_result['line_type']){
+              echo "Ligne ";
+              echo $obj['ligne']['numLigne'];
+              echo " destination de ";
+              echo $obj['terminus'];
+              echo '</br>';
+              echo "Prochain départ : ";
+              echo  $obj['temps'];
+              echo '</br>';
+              echo '</br>';
+              $nb_trams++;
+              if ($nb_trams >= $db_result['depth']){
+                break;
+              }
             }
           }
-        }
-        echo "</div>";
+          echo "</div><div class=\"col-sm-1\"></div>";
       }
       ?>
     </div>
